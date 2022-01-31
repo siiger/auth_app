@@ -13,11 +13,9 @@ class LogInWithGoogleFailure implements Exception {}
 /// Thrown during the logout process if a failure occurs.
 class LogOutFailure implements Exception {}
 
-/// {@template authentication_repository}
-/// Repository which manages user authentication.
-/// {@endtemplate}
+
 class FirebaseAuthenticationRepository implements AuthenticationRepository {
-  /// {@macro authentication_repository}
+  
   FirebaseAuthenticationRepository({
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
@@ -29,10 +27,9 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
 
   AuthenticationStatus _status = AuthenticationStatus.unknown;
 
-  /// Stream of [UserAu] which will emit the current user when
-  /// the authentication state changes.
-  ///
-  /// Emits [UserAu.empty] if the user is not authenticated.
+  
+
+
   @override
   Stream<Auth> get auth {
     return _firebaseAuth.authStateChanges().map((firebaseUser) {
@@ -42,12 +39,11 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
     });
   }
 
-  /// Starts the Sign In with Google Flow.
-  ///
-  /// Throws a [LogInWithGoogleFailure] if an exception occurs.
+  
+
+
   @override
   Future<void> logInWithGoogle() async {
-    _status = AuthenticationStatus.login;
     try {
       late final firebase_auth.AuthCredential credential;
       final googleUser = await _googleSignIn.signIn();
@@ -62,10 +58,9 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
     }
   }
 
-  /// Signs out the current user which will emit
-  /// [UserAu.empty] from the [user] Stream.
-  ///
-  /// Throws a [LogOutFailure] if an exception occurs.
+  
+
+  
   @override
   Future<void> logOut() async {
     _status = AuthenticationStatus.logout;

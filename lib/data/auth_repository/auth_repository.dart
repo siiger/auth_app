@@ -10,5 +10,5 @@ abstract class AuthenticationRepository {
 
   Future<void> signInAnonymously();
 
-  Stream<Auth> get auth;
+  Stream<UserAu> get auth;
 }

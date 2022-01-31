@@ -25,17 +25,16 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
 
-  AuthenticationStatus _status = AuthenticationStatus.unknown;
+ 
 
   
 
 
   @override
-  Stream<Auth> get auth {
+  Stream<UserAu> get auth {
     return _firebaseAuth.authStateChanges().map((firebaseUser) {
-      return firebaseUser == null
-          ? const Auth(user: UserAu.empty, status: AuthenticationStatus.unknown)
-          : Auth(user: firebaseUser.toUser, status: _status);
+      final user = firebaseUser == null ? UserAu.empty : firebaseUser.toUser;
+      return user;
     });
   }
 
@@ -60,10 +59,9 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
 
   
 
-  
+
   @override
   Future<void> logOut() async {
-    _status = AuthenticationStatus.logout;
     try {
       await Future.wait([
         _firebaseAuth.signOut(),
@@ -76,7 +74,6 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
 
   @override
   Future<void> signInAnonymously() async {
-    _status = AuthenticationStatus.signinanon;
     await _firebaseAuth.signInAnonymously();
   }
 }

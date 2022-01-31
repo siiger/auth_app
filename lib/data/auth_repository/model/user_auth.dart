@@ -1,12 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-/// {@template user}
-/// User model
-///
-/// [UserAu.empty] represents an unauthenticated user.
-/// {@endtemplate}
+
 class UserAu extends Equatable {
-  /// {@macro user}
   const UserAu({
     required this.id,
     this.email,
@@ -47,19 +42,3 @@ class UserAu extends Equatable {
   List<Object?> get props => [email, id, name, photo, createdAt, lastSignedIn];
 }
 
-enum AuthenticationStatus { unknown, login, logout, signup, signinanon }
-
-class Auth extends Equatable {
-  /// {@macro user}
-  const Auth({
-    required this.user,
-    required this.status,
-  });
-
-  final UserAu user;
-
-  final AuthenticationStatus status;
-
-  @override
-  List<Object> get props => [user, status];
-}

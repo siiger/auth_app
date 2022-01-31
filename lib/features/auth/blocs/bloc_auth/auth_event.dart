@@ -12,7 +12,7 @@ abstract class AuthenticationEvent extends Equatable {
 class AuthenticationUserChanged extends AuthenticationEvent {
   const AuthenticationUserChanged(this.auth);
 
-  final Auth auth;
+  final UserAu auth;
 
   @override
   List<Object> get props => [auth];

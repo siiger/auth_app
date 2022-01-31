@@ -25,7 +25,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   final AuthenticationRepository _authenticationRepository;
   final UserRepository _userRepository;
-  late StreamSubscription<Auth> _authSubscription;
+  late StreamSubscription<UserAu> _authSubscription;
 
   @override
   Stream<AuthenticationState> mapEventToState(
@@ -47,38 +47,21 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   Future<AuthenticationState> _mapAuthenticationUserChangedToState(
     AuthenticationUserChanged event,
   ) async {
-    switch (event.auth.status) {
-      case AuthenticationStatus.unknown:
-        if (event.auth.user == UserAu.empty) {
-          return const AuthenticationState.unauthenticated();
-        } else {
-          final user = await _tryGetUser(event.auth.user.id);
-          return user.id != '0' ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
-        }
-      case AuthenticationStatus.logout:
-        return const AuthenticationState.unauthenticated();
-      case AuthenticationStatus.login:
-        if (event.auth.user.lastSignedIn!.difference(event.auth.user.createdAt!).inMinutes > 2) {
-          final user = await _tryGetUser(event.auth.user.id);
-          return user != null ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
-        } else {
-          final user = User(id: event.auth.user.id, email: event.auth.user.email, name: event.auth.user.name);
-          final res = await _trySetUser(user);
-          return res ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
-        }
-      case AuthenticationStatus.signup:
-        final user = User(id: event.auth.user.id, email: event.auth.user.email, name: event.auth.user.name);
-        final res = await _trySetUser(user);
-        return res ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
-      case AuthenticationStatus.signinanon:
-        final user = User(
-          id: event.auth.user.id,
-        );
-        final res = await _trySetUser(user);
-        return res ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
-      default:
-        return const AuthenticationState.uninitialized();
+
+    if (event.auth.isEmpty) {
+      return const AuthenticationState.unauthenticated();
     }
+
+
+    if (event.auth.lastSignedIn!.difference(event.auth.createdAt!).inMinutes < 2) {
+      final user = User(id: event.auth.id, email: event.auth.email, name: event.auth.name);
+      final res = await _trySetUser(user);
+      return res ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
+    }
+
+
+    final user = await _tryGetUser(event.auth.id);
+    return user != null ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
   }
 
   Future<User> _tryGetUser(String uid) async {

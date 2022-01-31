@@ -47,18 +47,15 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   Future<AuthenticationState> _mapAuthenticationUserChangedToState(
     AuthenticationUserChanged event,
   ) async {
-
     if (event.auth.isEmpty) {
       return const AuthenticationState.unauthenticated();
     }
-
-
-    if (event.auth.lastSignedIn!.difference(event.auth.createdAt!).inMinutes < 2) {
+    // Detect new authentication to create new collection for user
+    if (event.auth.lastSignedIn!.difference(event.auth.createdAt!).inMinutes <= 1) {
       final user = User(id: event.auth.id, email: event.auth.email, name: event.auth.name);
       final res = await _trySetUser(user);
       return res ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
     }
-
 
     final user = await _tryGetUser(event.auth.id);
     return user != null ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();

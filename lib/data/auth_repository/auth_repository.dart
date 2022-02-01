@@ -6,6 +6,8 @@ abstract class AuthenticationRepository {
 
   Future<void> logInWithGoogle();
 
+  Future<void> logInWithApple();
+
   Future<void> logOut();
 
   Future<void> signInAnonymously();

@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-
 class UserAu extends Equatable {
   const UserAu({
     required this.id,
@@ -9,6 +8,7 @@ class UserAu extends Equatable {
     this.photo,
     this.createdAt,
     this.lastSignedIn,
+    this.isAnonymous,
   });
 
   /// The current user's email address.
@@ -29,6 +29,9 @@ class UserAu extends Equatable {
   /// Time of the last sign In
   final DateTime? lastSignedIn;
 
+  /// is Anonymous
+  final bool? isAnonymous;
+
   /// Empty user which represents an unauthenticated user.
   static const empty = UserAu(id: '');
 
@@ -41,4 +44,3 @@ class UserAu extends Equatable {
   @override
   List<Object?> get props => [email, id, name, photo, createdAt, lastSignedIn];
 }
-

@@ -52,7 +52,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     }
     // Detect new authentication to create new collection for user
     if (event.auth.lastSignedIn!.difference(event.auth.createdAt!).inMinutes <= 1) {
-      final user = User(id: event.auth.id, email: event.auth.email, name: event.auth.name);
+      final user = User(
+        id: event.auth.id,
+        email: event.auth.email,
+        name: event.auth.name,
+        isAnonymous: event.auth.isAnonymous,
+      );
       final res = await _trySetUser(user);
       return res ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
     }

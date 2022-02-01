@@ -28,7 +28,7 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
 
   @override
   Stream<UserAu> get auth {
-    return _firebaseAuth.authStateChanges().map((firebaseUser) {
+    return _firebaseAuth.userChanges().map((firebaseUser) {
       final user = firebaseUser == null ? UserAu.empty : firebaseUser.toUser;
       return user;
     });
@@ -44,7 +44,14 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      await _firebaseAuth.signInWithCredential(credential);
+
+      final currentUser = _firebaseAuth.currentUser;
+      //if there is already an anonymous user signed in
+      if (currentUser != null && currentUser.isAnonymous) {
+        await currentUser.linkWithCredential(credential);
+      } else {
+        await _firebaseAuth.signInWithCredential(credential);
+      }
     } on Exception {
       throw LogInWithGoogleFailure();
     }
@@ -53,7 +60,7 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
   @override
   Future<void> logInWithApple() async {
     var redirectURL = "https://AuthApp.glitch.me/callbacks/sign_in_with_apple";
-    var clientID = "com.example.authApp20107";
+    var clientID = "com.example.authApp";
     try {
       final appleIdCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -70,8 +77,14 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
         idToken: appleIdCredential.identityToken,
         accessToken: appleIdCredential.authorizationCode,
       );
-      await _firebaseAuth.signInWithCredential(credential);
-      print(credential);
+
+      final currentUser = _firebaseAuth.currentUser;
+      //if there is already an anonymous user signed in
+      if (currentUser != null && currentUser.isAnonymous) {
+        await currentUser.linkWithCredential(credential);
+      } else {
+        await _firebaseAuth.signInWithCredential(credential);
+      }
     } on Exception {
       throw LogInWithAppleFailure();
     }
@@ -103,6 +116,7 @@ extension on firebase_auth.User {
         name: displayName,
         photo: photoURL,
         createdAt: metadata.creationTime,
-        lastSignedIn: metadata.lastSignInTime);
+        lastSignedIn: metadata.lastSignInTime,
+        isAnonymous: isAnonymous);
   }
 }

@@ -27,6 +27,7 @@ class User extends Equatable {
   final DateTime? lastLoggedIn;
   final DateTime? registrationDate;
   final bool? introSeen;
+  final bool? isAnonymous;
 
   const User({
     required this.id,
@@ -34,6 +35,7 @@ class User extends Equatable {
     this.name,
     this.photo,
     this.introSeen,
+    this.isAnonymous,
     this.dayOfBirth,
     this.lastLoggedIn,
     this.registrationDate,
@@ -71,8 +73,11 @@ class User extends Equatable {
   /// Empty user which represents an unauthenticated user.
   static const empty = User(id: '');
 
+  /// Convenience getter to determine whether the current user is empty.
+  bool get isEmpty => this == User.empty;
+
   @override
-  List<Object?> get props => [email, id, name, photo, dayOfBirth, introSeen];
+  List<Object?> get props => [email, id, name, photo, dayOfBirth, introSeen, isAnonymous];
 
   User copyWith({
     String? id,
@@ -83,6 +88,7 @@ class User extends Equatable {
     DateTime? lastLoggedIn,
     DateTime? registrationDate,
     bool? introSeen,
+    bool? isAnonymous,
   }) {
     return User(
       id: id ?? this.id,
@@ -93,6 +99,7 @@ class User extends Equatable {
       lastLoggedIn: lastLoggedIn ?? this.lastLoggedIn,
       registrationDate: registrationDate ?? this.registrationDate,
       introSeen: introSeen ?? this.introSeen,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
     );
   }
 }

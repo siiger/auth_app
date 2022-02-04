@@ -9,5 +9,9 @@ abstract class UserRepository {
 
   User get currentUser;
 
+  void resetCurrentUser();
+
   Future<bool> updateIntroSeenCurrentUser({bool? introSeen});
+
+  Future<bool> updateDataFieldCurrentUser({String? data});
 }

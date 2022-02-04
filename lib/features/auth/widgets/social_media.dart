@@ -50,7 +50,7 @@ class SocialMediaWidget extends StatelessWidget {
           ),
         ),
         SizedBox(width: 10),
-        SizedBox(
+        /*SizedBox(
           width: 45,
           height: 45,
           child: InkWell(
@@ -58,6 +58,7 @@ class SocialMediaWidget extends StatelessWidget {
             child: const Icon(FontAwesomeIcons.mask, color: Colors.blue),
           ),
         ),
+        */
       ],
     );
   }

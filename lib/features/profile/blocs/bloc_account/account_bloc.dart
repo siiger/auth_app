@@ -29,6 +29,8 @@ class AccountBloc extends Bloc<AccountEvent, User> {
       yield* _mapNameToState(state, event);
     } else if (event is Save) {
       yield* _mapSaveToState(state, event);
+    } else if (event is UpdateData) {
+      yield* _mapUpdateDataToState(state, event);
     }
   }
 
@@ -53,9 +55,22 @@ class AccountBloc extends Bloc<AccountEvent, User> {
     final res = await _trySetUser(user);
   }
 
+  Stream<User> _mapUpdateDataToState(User user, UpdateData event) async* {
+    final res = await _tryUpdateDataUser(user, event.data);
+  }
+
   Future<bool> _trySetUser(User user) async {
     try {
       final res = await _userRepository.setUser(user);
+      return res;
+    } on Exception {
+      return false;
+    }
+  }
+
+  Future<bool> _tryUpdateDataUser(User user, String data) async {
+    try {
+      final res = await _userRepository.updateDataFieldCurrentUser(data: data);
       return res;
     } on Exception {
       return false;

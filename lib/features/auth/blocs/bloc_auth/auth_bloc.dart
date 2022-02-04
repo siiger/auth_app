@@ -34,7 +34,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     if (event is AuthenticationUserChanged) {
       yield await _mapAuthenticationUserChangedToState(event);
     } else if (event is AuthenticationLogoutRequested) {
-      unawaited(_authenticationRepository.logOut());
+      yield await _mapAuthenticationLogoutRequestedToState(event);
     }
   }
 
@@ -44,6 +44,14 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     return super.close();
   }
 
+  Future<AuthenticationState> _mapAuthenticationLogoutRequestedToState(
+    AuthenticationLogoutRequested event,
+  ) async {
+    unawaited(_authenticationRepository.logOut());
+    _userRepository.resetCurrentUser();
+    return const AuthenticationState.unauthenticated();
+  }
+
   Future<AuthenticationState> _mapAuthenticationUserChangedToState(
     AuthenticationUserChanged event,
   ) async {
@@ -51,11 +59,13 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       return const AuthenticationState.unauthenticated();
     }
     // Detect new authentication to create new collection for user
-    if (event.auth.lastSignedIn!.difference(event.auth.createdAt!).inMinutes <= 1) {
+    int delta = event.auth.lastSignedIn!.difference(event.auth.createdAt!).inMinutes;
+    if (delta <= 1) {
       final user = User(
         id: event.auth.id,
         email: event.auth.email,
         name: event.auth.name,
+        photo: event.auth.photo,
         isAnonymous: event.auth.isAnonymous,
       );
       final res = await _trySetUser(user);
@@ -63,6 +73,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     }
 
     final user = await _tryGetUser(event.auth.id);
+
     return user != null ? AuthenticationState.authenticated(user) : const AuthenticationState.unauthenticated();
   }
 

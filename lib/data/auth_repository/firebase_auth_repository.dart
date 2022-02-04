@@ -2,13 +2,63 @@ import 'dart:async';
 
 import 'package:auth_app/data/auth_repository/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'model/user_auth.dart';
 
-/// Thrown during the sign in with google process if a failure occurs.
-class LogInWithGoogleFailure implements Exception {}
+/// Thrown during the sign in with google process if a failure occurs
+class LogInWithGoogleFailure implements Exception {
+  /// {@macro log_in_with_google_failure}
+  const LogInWithGoogleFailure([
+    this.message = 'An unknown exception occurred.',
+  ]);
+
+  /// Create an authentication message
+  /// from a firebase authentication exception code.
+  factory LogInWithGoogleFailure.fromCode(String code) {
+    switch (code) {
+      case 'account-exists-with-different-credential':
+        return const LogInWithGoogleFailure(
+          'Account exists with different credentials.',
+        );
+      case 'invalid-credential':
+        return const LogInWithGoogleFailure(
+          'The credential received is malformed or has expired.',
+        );
+      case 'operation-not-allowed':
+        return const LogInWithGoogleFailure(
+          'Operation is not allowed.  Please contact support.',
+        );
+      case 'user-disabled':
+        return const LogInWithGoogleFailure(
+          'This user has been disabled. Please contact support for help.',
+        );
+      case 'user-not-found':
+        return const LogInWithGoogleFailure(
+          'Email is not found, please create an account.',
+        );
+      case 'wrong-password':
+        return const LogInWithGoogleFailure(
+          'Incorrect password, please try again.',
+        );
+      case 'invalid-verification-code':
+        return const LogInWithGoogleFailure(
+          'The credential verification code received is invalid.',
+        );
+      case 'invalid-verification-id':
+        return const LogInWithGoogleFailure(
+          'The credential verification ID received is invalid.',
+        );
+      default:
+        return const LogInWithGoogleFailure();
+    }
+  }
+
+  /// The associated error message.
+  final String message;
+}
 
 /// Thrown during the sign in with apple process if a failure occurs.
 class LogInWithAppleFailure implements Exception {}
@@ -48,12 +98,20 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
       final currentUser = _firebaseAuth.currentUser;
       //if there is already an anonymous user signed in
       if (currentUser != null && currentUser.isAnonymous) {
-        await currentUser.linkWithCredential(credential);
+        try {
+          await currentUser.linkWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          if (e.code == "credential-already-in-use") {
+            await _firebaseAuth.signInWithCredential(credential);
+          }
+        }
       } else {
         await _firebaseAuth.signInWithCredential(credential);
       }
-    } on Exception {
-      throw LogInWithGoogleFailure();
+    } on FirebaseAuthException catch (e) {
+      throw LogInWithGoogleFailure.fromCode(e.code);
+    } catch (_) {
+      throw const LogInWithGoogleFailure();
     }
   }
 
@@ -67,10 +125,12 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
+        /*
         webAuthenticationOptions: WebAuthenticationOptions(
           redirectUri: Uri.parse(redirectURL),
           clientId: clientID,
         ),
+        */
       );
       final oAuthProvider = firebase_auth.OAuthProvider('apple.com');
       final credential = oAuthProvider.credential(
@@ -104,7 +164,7 @@ class FirebaseAuthenticationRepository implements AuthenticationRepository {
 
   @override
   Future<void> signInAnonymously() async {
-    await _firebaseAuth.signInAnonymously();
+      await _firebaseAuth.signInAnonymously();
   }
 }
 
@@ -113,8 +173,8 @@ extension on firebase_auth.User {
     return UserAu(
         id: uid,
         email: email,
-        name: displayName,
-        photo: photoURL,
+        name: providerData.isNotEmpty ? providerData[0].displayName : displayName,
+        photo: providerData.isNotEmpty ? providerData[0].photoURL : photoURL,
         createdAt: metadata.creationTime,
         lastSignedIn: metadata.lastSignInTime,
         isAnonymous: isAnonymous);

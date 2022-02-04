@@ -23,34 +23,37 @@ class User extends Equatable {
   final String? email;
   final String? name;
   final String? photo;
+  final String? data;
   final DateTime? dayOfBirth;
   final DateTime? lastLoggedIn;
   final DateTime? registrationDate;
   final bool? introSeen;
   final bool? isAnonymous;
 
-  const User({
-    required this.id,
-    this.email,
-    this.name,
-    this.photo,
-    this.introSeen,
-    this.isAnonymous,
-    this.dayOfBirth,
-    this.lastLoggedIn,
-    this.registrationDate,
-  });
+  const User(
+      {required this.id,
+      this.email,
+      this.name,
+      this.photo,
+      this.introSeen,
+      this.isAnonymous,
+      this.dayOfBirth,
+      this.lastLoggedIn,
+      this.registrationDate,
+      this.data});
 
   factory User.fromMap(Map<String, dynamic>? map) {
     return User(
       id: map!['uid'] as String,
       name: map['name'] as String,
       email: map['email'] as String,
-      photo: map['avatar'] as String,
-      introSeen: map['introSeen'] as bool,
-      dayOfBirth: map['dayOfBirth'] as DateTime,
-      lastLoggedIn: map[UserFields.lastLoggedIn]?.toDate() as DateTime,
-      registrationDate: map[UserFields.registrationDate]?.toDate() as DateTime,
+      photo: map['avatar'] != null ? map['avatar'] as String : null,
+      data: map['data'] != null ? map['data'] as String : null,
+      introSeen: map['introSeen'] != null ? map['introSeen'] as bool : null,
+      dayOfBirth: map['dayOfBirth'] != null ? map['dayOfBirth'] as DateTime : null,
+      lastLoggedIn: map[UserFields.lastLoggedIn] != null ? map[UserFields.lastLoggedIn]?.toDate() as DateTime : null,
+      registrationDate:
+          map[UserFields.registrationDate] != null ? map[UserFields.registrationDate]?.toDate() as DateTime : null,
     );
   }
 
@@ -58,13 +61,14 @@ class User extends Equatable {
     // ignore: unnecessary_cast
     return {
       'uid': id,
-      'name': name,
-      'email': email,
-      'avatar': photo,
-      'introSeen': introSeen,
-      'dayOfBirth': dayOfBirth,
-      UserFields.lastLoggedIn: lastLoggedIn,
-      UserFields.registrationDate: registrationDate,
+      if (name != null) 'name': name,
+      if (email != null) 'email': email,
+      if (photo != null) 'avatar': photo,
+      if (introSeen != null) 'introSeen': introSeen,
+      if (data != null) 'data': data,
+      if (dayOfBirth != null) 'dayOfBirth': dayOfBirth,
+      if (lastLoggedIn != null) UserFields.lastLoggedIn: lastLoggedIn,
+      if (registrationDate != null) UserFields.registrationDate: registrationDate,
     } as Map<String, dynamic>;
   }
 
@@ -77,7 +81,7 @@ class User extends Equatable {
   bool get isEmpty => this == User.empty;
 
   @override
-  List<Object?> get props => [email, id, name, photo, dayOfBirth, introSeen, isAnonymous];
+  List<Object?> get props => [email, id, name, photo, dayOfBirth, introSeen, isAnonymous, data];
 
   User copyWith({
     String? id,
@@ -89,6 +93,7 @@ class User extends Equatable {
     DateTime? registrationDate,
     bool? introSeen,
     bool? isAnonymous,
+    String? data,
   }) {
     return User(
       id: id ?? this.id,
@@ -100,6 +105,7 @@ class User extends Equatable {
       registrationDate: registrationDate ?? this.registrationDate,
       introSeen: introSeen ?? this.introSeen,
       isAnonymous: isAnonymous ?? this.isAnonymous,
+      data: data ?? this.data,
     );
   }
 }

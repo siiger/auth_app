@@ -24,10 +24,10 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
-  Future<void> logInAnonymously() async {
+  Future<void> logInWithApple() async {
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
     try {
-      await _authenticationRepository.signInAnonymously();
+      await _authenticationRepository.logInWithApple();
       emit(state.copyWith(status: FormzStatus.submissionSuccess));
     } on Exception {
       emit(state.copyWith(status: FormzStatus.submissionFailure));
@@ -36,10 +36,11 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
-  Future<void> logoutRequested() async {
+
+  Future<void> logInAnonymously() async {
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
     try {
-      await _authenticationRepository.logOut();
+      await _authenticationRepository.signInAnonymously();
       emit(state.copyWith(status: FormzStatus.submissionSuccess));
     } on Exception {
       emit(state.copyWith(status: FormzStatus.submissionFailure));

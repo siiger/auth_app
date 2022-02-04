@@ -1,4 +1,6 @@
+import 'package:auth_app/features/auth/blocs/bloc_auth/auth_bloc.dart';
 import 'package:auth_app/features/auth/widgets/social_media.dart';
+import 'package:auth_app/features/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -24,6 +26,7 @@ class LoginScreen extends StatelessWidget {
 class _LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final status = BlocProvider.of<AuthenticationBloc>(context).state.status;
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state.status.isSubmissionFailure) {
@@ -53,23 +56,27 @@ class _LoginForm extends StatelessWidget {
               SocialMediaWidget(
                 signInWithFacebook: null,
                 signInWithGoogle: () => BlocProvider.of<LoginCubit>(context).logInWithGoogle(),
-                signInWithApple: null,
-                signInAnonymously: () => BlocProvider.of<LoginCubit>(context).logInAnonymously(),
+                signInWithApple: () => BlocProvider.of<LoginCubit>(context).logInWithApple(),
+                //signInAnonymously: () => BlocProvider.of<LoginCubit>(context).logInAnonymously(),
               ),
-              /* SizedBox(width: 20),
+              SizedBox(width: 20),
               OutlinedButton.icon(
-                key: const Key('homePage_logout_iconButton'),
-                onPressed: () => BlocProvider.of<LoginCubit>(context).logoutRequested(),
+                onPressed: () {
+                  if (status == AuthenticationBlocStatus.authenticated) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(ProfileScreen.routeName, (route) => false);
+                  } else {
+                    BlocProvider.of<LoginCubit>(context).logInAnonymously();
+                  }
+                },
                 icon: Icon(
-                  Icons.exit_to_app,
+                  Icons.skip_next,
                   color: Colors.black,
                 ),
                 label: Text(
-                  "LogOut",
+                  "Skip",
                   style: TextStyle(fontSize: 14, color: Colors.black),
                 ),
               ),
-              */
             ],
           ),
         ),

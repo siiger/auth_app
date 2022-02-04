@@ -84,3 +84,12 @@ class ZipCode extends AccountEvent {
   @override
   List<Object> get props => [zipCode];
 }
+
+class UpdateData extends AccountEvent {
+  const UpdateData(this.data);
+  final String data;
+
+  @override
+  List<Object> get props => [data];
+}
+

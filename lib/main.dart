@@ -10,13 +10,14 @@ import 'package:auth_app/features/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'data/auth_repository/auth_repository.dart';
 import 'data/auth_repository/firebase_auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(AuthApp());
 }
 
@@ -68,11 +69,6 @@ class _AuthAppState extends State<AuthApp> {
                 BlocProvider(
                   create: (context) => AccountBloc(
                     userRepository: context.read<UserRepository>(),
-                  ),
-                ),
-                BlocProvider(
-                  create: (context) => LoginCubit(
-                    authenticationRepository: context.read<AuthenticationRepository>(),
                   ),
                 ),
               ], child: ProfileScreen()),
